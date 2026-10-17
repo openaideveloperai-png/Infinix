@@ -437,13 +437,14 @@ const LEVELS = [
     '#.......................#',
     '#########################',
   ],
-  coins: [[290, 280], [710, 280], [500, 92], [500, 468]],
+  coins: [[290, 280], [710, 280], [500, 92], [500, 468], [500, 280]],
   build(B) {
-    B.curve(lissajous(500, 280, 300, 210, 3, 2, Math.PI / 2), 11, 4, 0, '#c74440', 'x = 300 sin(3t + π/2),  y = 210 sin(2t)', 58, 60, 'left');
-    B.curve(rose(290, 280, 140, 3), 5.5, 3, 0, '#2d70b3', 'r = 140 cos(3θ)', 58, 500, 'left');
-    B.curve(rose(710, 280, 140, 2), 7.5, 4, 0.125, '#388c46', 'r = 140 cos(2θ)', 942, 500, 'right');
-    B.curve(sineTrack(150, 850, 280, 190, 80), 8, 2, 0, '#6042a6', 'y = 190 sin(x / 80)', 942, 60, 'right');
-    B.hunter(500, 58, 'chase'); B.hunter(500, 502, 'cut');
+    B.curve(lissajous(500, 280, 300, 210, 3, 2, Math.PI / 2), 10, 6, 0, '#c74440', 'x = 300 sin(3t + π/2),  y = 210 sin(2t)', 58, 60, 'left');
+    B.curve(lissajous(500, 280, 110, 225, 1, 2, 0), 6.5, 3, 0.1, '#e07b39', 'x = 110 sin(t),  y = 225 sin(2t)', 400, 20, 'left');
+    B.curve(rose(290, 280, 140, 3), 5.5, 6, 0, '#2d70b3', 'r = 140 cos(3θ)', 58, 500, 'left');
+    B.curve(rose(710, 280, 140, 2), 7.5, 8, 0.0625, '#388c46', 'r = 140 cos(2θ)', 942, 500, 'right');
+    B.curve(sineTrack(150, 850, 280, 190, 80), 7, 3, 0, '#6042a6', 'y = 190 sin(x / 80)', 942, 60, 'right');
+    B.hunter(500, 58, 'chase'); B.hunter(500, 502, 'cut'); B.hunter(880, 470, 'flank');
   },
 },
 {
@@ -466,13 +467,15 @@ const LEVELS = [
   ],
   coins: [[80, 80], [500, 100], [920, 480], [80, 480]],
   build(B) {
-    [300, 400, 500, 600, 700].forEach((x, i) => {
-      B.bounce(x, 50, x, 150, 170, i % 2 ? 0.5 : 0);
-      B.bounce(x, 410, x, 510, 170, i % 2 ? 0 : 0.5);
+    [270, 340, 410, 480, 550, 620, 690].forEach((x, i) => {
+      B.bounce(x, 50, x, 150, 200, i % 2 ? 0.5 : 0);
+      B.bounce(x, 410, x, 510, 200, i % 2 ? 0 : 0.5);
     });
-    B.bounce(50, 180, 230, 180, 150, 0); B.bounce(50, 380, 230, 380, 150, 0.5);
-    B.bounce(770, 200, 950, 200, 150, 0.25); B.bounce(770, 360, 950, 360, 150, 0.75);
-    B.echo(2.4);
+    B.rail(50, 190, 230, 190); B.rail(50, 370, 230, 370);
+    B.rail(770, 200, 950, 200); B.rail(770, 360, 950, 360);
+    B.bounce(50, 120, 230, 120, 160, 0); B.bounce(50, 440, 230, 440, 160, 0.5);
+    B.sentry(860, 460);
+    B.echo(2.0); B.echo(4.2);
   },
 },
 {
@@ -495,12 +498,14 @@ const LEVELS = [
   ],
   coins: [[250, 460], [750, 340], [250, 100], [750, 220]],
   build(B) {
-    [340, 380, 420, 460].forEach((y, i) => B.lane(y, 2, (i % 2 ? -1 : 1) * (140 + 14 * i), i * 0.13));
-    [100, 140, 180, 220].forEach((y, i) => B.lane(y, 2, (i % 2 ? 1 : -1) * (150 + 12 * i), 0.4 + i * 0.17));
-    B.bounce(0, 252, 0, 308, 110, 0);
+    [340, 380, 420, 460].forEach((y, i) => B.lane(y, 3, (i % 2 ? -1 : 1) * (165 + 15 * i), i * 0.13));
+    [100, 140, 180, 220].forEach((y, i) => B.lane(y, 3, (i % 2 ? 1 : -1) * (175 + 13 * i), 0.4 + i * 0.17));
+    B.bounce(0, 252, 0, 308, 130, 0);
     B.rail(300, 330, 300, 470); B.rail(700, 330, 700, 470);
     B.rail(300, 90, 300, 230); B.rail(700, 90, 700, 230);
-    B.echo(2.3);
+    B.hunter(500, 330, 'chase', { x: 160, y: 320, w: 680, h: 160 });
+    B.hunter(500, 230, 'cut', { x: 160, y: 80, w: 680, h: 160 });
+    B.echo(2.0);
   },
 },
 {
@@ -572,8 +577,8 @@ const LEVELS = [
   ],
   coins: [[80, 80], [920, 80], [80, 480], [920, 480], [500, 200], [500, 360]],
   build(B) {
-    B.snake(500, 70, 'chase', 9); B.snake(500, 490, 'cut', 9);
-    B.cross(300, 280, 4, [30, 60], 1.5, 0); B.cross(700, 280, 4, [30, 60], -1.5, Math.PI / 4);
+    B.snake(500, 70, 'chase', 10); B.snake(500, 490, 'cut', 10); B.snake(880, 470, 'flank', 8);
+    B.cross(300, 280, 4, [30, 60, 90], 1.7, 0); B.cross(700, 280, 4, [30, 60, 90], -1.7, Math.PI / 4);
   },
 },
 {
@@ -596,9 +601,9 @@ const LEVELS = [
   ],
   coins: [[500, 88], [500, 407], [900, 280]],
   build(B) {
-    B.square(500, 280, 225, 60, 42, 0);
-    B.square(500, 280, 160, 60, -50, 0.5);
-    B.square(500, 280, 95, 55, 54, 0.25);
+    B.square(500, 280, 225, 60, 62, 0, 2);
+    B.square(500, 280, 160, 60, -72, 0.5, 2);
+    B.square(500, 280, 95, 55, 80, 0.25);
     B.hunter(150, 120, 'chase', { x: 40, y: 40, w: 225, h: 480 });
     B.hunter(850, 440, 'chase', { x: 735, y: 40, w: 225, h: 480 });
   },
@@ -648,8 +653,8 @@ const LEVELS = [
   ],
   coins: [[160, 80], [840, 80], [160, 480], [840, 480]],
   build(B) {
-    B.wall({ axis: 'v', a0: 40, a1: 520, s0: 130, s1: 870, speed: 70, phase: 0 });
-    B.wall({ axis: 'h', a0: 120, a1: 880, s0: 50, s1: 510, speed: 55, phase: 0.25 });
+    B.wall({ axis: 'v', a0: 40, a1: 520, s0: 130, s1: 470, speed: 70, phase: 0 });
+    B.wall({ axis: 'v', a0: 40, a1: 520, s0: 530, s1: 870, speed: 70, phase: 0.5 });
     B.pulse(500, 280, { period: 4.2, speed: 95, phase: 0.3 });
     B.echo(2.6);
   },
@@ -674,7 +679,7 @@ const LEVELS = [
   ],
   coins: [[200, 80], [800, 80], [200, 480], [800, 480], [500, 168]],
   build(B) {
-    B.square(500, 280, 150, 60, -46, 0);
+    B.square(500, 280, 150, 60, -60, 0, 2);
     B.square(500, 280, 75, 45, 54, 0.5);
     B.lane(60, 2, 170, 0); B.lane(500, 2, -170, 0.25);
     B.snake(800, 280, 'chase', 8, { x: 680, y: 40, w: 230, h: 480 });
@@ -958,8 +963,10 @@ class Ring {
     else if (band < 70) this.near = true;
     else if (band > 95) this.near = false;
     const openHalf = this.R * Math.sin(step) - ER;
-    // once PpR is online, the ring also holds still while you thread a pixel-perfect gap
-    this.locked = g.hunt && ai.ppr !== null && band < 12 && Math.abs(angDiff(pang, this.phi)) * pr < openHalf + 14;
+    // standing right at the gap: it slows to a crawl for you, and holds still once PpR is online
+    const atGap = g.hunt && band < 12 && Math.abs(angDiff(pang, this.phi)) * pr < openHalf + 14;
+    this.locked = atGap && ai.ppr !== null;
+    const crawl = atGap ? 0.25 : 1;
     this.timer -= dt;
     if (this.timer <= 0) {
       this.timer = ai.react;
@@ -975,7 +982,7 @@ class Ring {
       const d = clamp(angDiff(this.tphi, this.phi), -wmax * dt, wmax * dt);
       if (Math.abs(d) > 1e-9) this.spin = d > 0 ? 1 : -1;
       this.phi += d;
-    } else if (this.mode === 'spin') this.phi += this.spin * Math.min(0.5 + 0.5 * ai.k, 60 / this.R) * dt;
+    } else if (this.mode === 'spin') this.phi += this.spin * Math.min(0.5 + 0.5 * ai.k, 60 / this.R) * crawl * dt;
     else this.phi += wmax * 0.5 * dt;
     this.phi = wrapAngle(this.phi);
     let k = 0;
@@ -990,8 +997,8 @@ class Ring {
 
 // ---- classic formation: a rounded square of circles with one gap, going round forever
 class PathRing {
-  constructor(cx, cy, half, rc, speed, phase) {
-    this.cx = cx; this.cy = cy; this.h = half; this.rc = rc; this.speed = speed;
+  constructor(cx, cy, half, rc, speed, phase, gaps) {
+    this.cx = cx; this.cy = cy; this.h = half; this.rc = rc; this.speed = speed; this.gaps = gaps || 1;
     this.a = half - rc;                                // half length of each straight side
     this.L = 8 * this.a + TAU * rc;                    // perimeter
     this.home = ((phase || 0) % 1) * this.L;
@@ -1042,25 +1049,32 @@ class PathRing {
     const need = P + ai.clearance + 2 * ER;
     // spacing so the one gap is P + clearance wide even on a corner, and every other gap is too small
     const spMin = Math.max(need / 2, this.rc * Math.asin(Math.min(1, need / (2 * this.rc))));
-    const n = Math.max(3, Math.floor(this.L / spMin));
-    const sp = this.L / n;
-    return { n, sp, open: 2 * sp - 2 * ER };
+    const per = Math.max(3, Math.floor(this.L / spMin / this.gaps));   // slots from one gap to the next
+    const n = per * this.gaps, sp = this.L / n;
+    return { n, per, sp, open: 2 * sp - 2 * ER };
   }
   update(dt, g) {
-    const ai = g.ai, p = g.player, { n, sp, open } = this.layout(ai);
-    this.locked = false;
-    if (g.hunt && ai.ppr !== null) {
+    const ai = g.ai, p = g.player, { n, per, sp, open } = this.layout(ai);
+    // standing right at a gap: it slows to a crawl for you, and holds still once PpR is online
+    let atGap = false;
+    if (g.hunt) {
       const pr = this.project(p.x, p.y);
-      let off = ((pr.s - this.s) % this.L + this.L) % this.L;
-      if (off > this.L / 2) off -= this.L;
-      this.locked = pr.dist - ER - HALF < 12 && Math.abs(off) < open / 2 + 14;
+      if (pr.dist - ER - HALF < 12) {
+        const seg = this.L / this.gaps;
+        let off = ((pr.s - this.s) % seg + seg) % seg;
+        if (off > seg / 2) off -= seg;
+        atGap = Math.abs(off) < open / 2 + 14;
+      }
     }
-    if (!this.locked) this.s = ((this.s + this.speed * ai.patrolMul * dt) % this.L + this.L) % this.L;
+    this.locked = atGap && ai.ppr !== null;
+    if (!this.locked) this.s = ((this.s + this.speed * ai.patrolMul * (atGap ? 0.25 : 1) * dt) % this.L + this.L) % this.L;
+    let k = 0;
     for (let j = 1; j < n; j++) {
-      const q = this.point(this.s + j * sp), o = this.pool[j - 1] || (this.pool[j - 1] = { x: 0, y: 0 });
-      o.x = q[0]; o.y = q[1];
+      if (j % per === 0) continue;
+      const q = this.point(this.s + j * sp), o = this.pool[k] || (this.pool[k] = { x: 0, y: 0 });
+      o.x = q[0]; o.y = q[1]; k++;
     }
-    this.n = n - 1;
+    this.n = k;
   }
   emit(out) { for (let i = 0; i < this.n; i++) out.push(this.pool[i]); }
 }
@@ -1089,7 +1103,7 @@ class Stream {
 }
 
 // ---- learning: replays your own path a few seconds behind you
-const ECHO_CAP = 640;
+const ECHO_CAP = 1024;
 class Echo {
   constructor(base) { this.base = base; this.buf = new Float64Array(ECHO_CAP * 3); this.reset(); }
   reset() { this.head = 0; this.count = 0; this.active = false; this.x = -999; this.y = -999; this.mode = 'idle'; }
@@ -1143,6 +1157,19 @@ class Pulse {
     const tau = dp / (this.speed * ai.patrolMul);
     const reach = (0.25 + 0.5 * ai.k) * PSPEED * tau;       // how far you can get before it arrives
     const dth = Math.min(Math.PI * 0.95, reach / dp);
+    // how far round the arc you could really walk before a wall stops you
+    const fits = (x, y) => lv.walkAt(x - HALF, y - HALF) && lv.walkAt(x + HALF, y - HALF) && lv.walkAt(x - HALF, y + HALF) && lv.walkAt(x + HALF, y + HALF);
+    const walkable = sd => {
+      const st = 8 / dp;
+      let a = 0;
+      while (a + st <= dth) {
+        const t = th + sd * (a + st);
+        if (!fits(this.cx + Math.cos(t) * dp, this.cy + Math.sin(t) * dp)) break;
+        a += st;
+      }
+      return a;
+    };
+    const far = { 1: walkable(1), '-1': walkable(-1) };
     let side = this.flip; this.flip = -this.flip;
     if (g.heatMax >= 0.5) {                                  // open it on the side you use less
       const hA = g.heatNear(this.cx + Math.cos(th + dth) * dp, this.cy + Math.sin(th + dth) * dp, 50);
@@ -1150,7 +1177,8 @@ class Pulse {
       const wa = hA ? hA.w : 0, wb = hB ? hB.w : 0;
       if (Math.abs(wa - wb) > 0.05) side = wa < wb ? 1 : -1;
     }
-    const gap = th + side * dth;
+    if (far[side] < 0.3 * far[-side]) side = -side;           // that way is a dead end
+    const gap = th + side * far[side];
     const half = Math.asin(Math.min(1, (P + ai.clearance + 2 * ER) / (2 * dp)));
     const smax = 2 * Math.asin(Math.min(1, (P - 4 + 2 * ER) / (2 * this.rmax)));
     const n = Math.max(2, Math.ceil((TAU - 2 * half) / smax));
@@ -1161,7 +1189,10 @@ class Pulse {
     const lv = g.level, mul = g.ai.patrolMul;
     if (!this.rmax) this.init(lv);
     this.timer -= dt * mul;
-    if (this.timer <= 0) { this.timer += this.period; this.fire(g); }
+    if (this.timer <= 0) {
+      if (this.clash(g)) this.timer = 0.15;                   // wait: another wave is about to reach you
+      else { this.timer += this.period; this.fire(g); }
+    }
     for (const rg of this.rings) rg.r += this.speed * mul * dt;
     while (this.rings.length && this.rings[0].r > this.rmax) this.rings.shift();
     let k = 0;
@@ -1175,6 +1206,21 @@ class Pulse {
       o.x = x; o.y = y; k++;
     }
     this.n = k;
+  }
+  // would this wave reach you within 0.9 s of another emitter's wave?
+  clash(g) {
+    const p = g.player, mul = g.ai.patrolMul, lv = g.level;
+    const dist = e => Math.hypot((lv.wrap ? nearImage(p.x, e.cx) : p.x) - e.cx, p.y - e.cy);
+    const mine = dist(this) / (this.speed * mul);
+    for (const e of lv.enemies) {
+      if (e === this || !(e instanceof Pulse)) continue;
+      const de = dist(e);
+      for (const rg of e.rings) {
+        const t = (de - rg.r) / (e.speed * mul);
+        if (t > -0.3 && Math.abs(t - mine) < 0.9) return true;
+      }
+    }
+    return false;
   }
   emit(out) { for (let i = 0; i < this.n; i++) out.push(this.pool[i]); }
 }
@@ -1380,7 +1426,7 @@ function makeBuilder(lv) {
     snake: (x, y, role, len, ar) => E.push(new Snake(x, y, role, ar || lv.bounds, len)),
     wall: o => E.push(new Wall(o)),
     ring: (cx, cy, R) => E.push(new Ring(cx, cy, R)),
-    square: (cx, cy, half, rc, speed, phase) => E.push(new PathRing(cx, cy, half, rc, speed, phase)),
+    square: (cx, cy, half, rc, speed, phase, gaps) => E.push(new PathRing(cx, cy, half, rc, speed, phase, gaps)),
     echo: base => E.push(new Echo(base)),
     pulse(cx, cy, o) { E.push(new Pulse(cx, cy, o)); lv.cores.push([cx, cy]); },
     lane(y, count, speed, offset) { for (let i = 0; i < count; i++) E.push(new Stream(((offset || 0) + i / count) * W, y, speed)); },

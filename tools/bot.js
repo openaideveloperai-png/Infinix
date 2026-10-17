@@ -114,7 +114,7 @@ while (!solution && (Date.now() - t0) / 1000 < TIME) {
       last = rnd() < 0.16 ? DIRS[0] : DIRS[1 + ((rnd() * 8) | 0)];
       slow = rnd() < (ppr !== null ? 0.3 : 0.1);
     }
-    const n = 4 + ((rnd() * 26) | 0);
+    const n = rnd() < 0.15 ? 1 + ((rnd() * 3) | 0) : 4 + ((rnd() * 26) | 0);
     sim.input(last[0], last[1], slow);
     const ran = sim.step(n);
     acts.push([last[0], last[1], slow ? 1 : 0, ran]);
