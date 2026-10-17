@@ -2712,7 +2712,7 @@ function secretUpdate(dt) {
   if (SX.end > 0) {
     // the last room: it is standing at the beginning
     SX.end += dt;
-    if (SX.end > 1.6 && !SX.said) { SX.said = true; sayLines(['Ao Oni?'], () => { SX.black = 0.0001; }); }
+    if (SX.end > 1.6 && !SX.said) { SX.said = true; sayLines(['Who are you? are you relly from this game?'], () => { SX.black = 0.0001; }); }
     return;
   }
   if (!SX.freeze) {
