@@ -19,6 +19,11 @@ const SEED = +(args.seed || 1);
 const TIME = +(args.time || 240);
 const OUT = args.out;
 const HEAT = args.heat ? JSON.parse(fs.readFileSync(args.heat, 'utf8')) : null;
+// --human 1: inputs held at least 10 steps (83 ms), no single-frame tricks.
+// The winning run is then replayed with +-3 steps (25 ms) of timing error on every
+// input; the share that still wins says how much slack a person would have.
+const HUMAN = args.human === '1';
+const ROBUST = +(args.robust || (HUMAN ? 30 : 0));
 
 let rs = (SEED * 2654435761) >>> 0 || 7;          // the bot's own randomness (not the game's)
 const rnd = () => { rs ^= rs << 13; rs >>>= 0; rs ^= rs >> 17; rs ^= rs << 5; rs >>>= 0; return rs / 4294967296; };
@@ -87,6 +92,38 @@ let iters = 0, solution = null, maxCoins = 0;
 const t0 = Date.now();
 const ppr = G.ai.ppr;
 
+// What a person would aim for: the gap in whatever formation is about to reach you.
+const C = I.classes;
+function gapTarget() {
+  const p = G.player, ai = G.ai, best = [];
+  for (const e of G.level.enemies) {
+    if (e instanceof C.Wall) {
+      const v = e.axis === 'v', ps = v ? p.x : p.y, sv = e.speed * ai.patrolMul;
+      const rel = ps - e.pos, t = rel * e.dir > 0 ? Math.abs(rel) / sv : Infinity;
+      if (t < 2.5) best.push([t, v ? p.x : e.g, v ? e.g : p.y]);
+    } else if (e instanceof C.Pulse) {
+      const dp = Math.hypot(p.x - e.cx, p.y - e.cy);
+      for (const rg of e.rings) {
+        const t = (dp - rg.r) / (e.speed * ai.patrolMul);
+        if (t > 0 && t < 3) best.push([t, e.cx + Math.cos(rg.gap) * dp, e.cy + Math.sin(rg.gap) * dp]);
+      }
+    } else if (e instanceof C.Ring) {
+      const d = Math.hypot(p.x - e.cx, p.y - e.cy);
+      if (Math.abs(d - e.R) < 140) best.push([1.5, e.cx + Math.cos(e.phi) * e.R, e.cy + Math.sin(e.phi) * e.R]);
+    } else if (e instanceof C.PathRing) {
+      const pr = e.project(p.x, p.y);
+      if (pr.dist < 120) {
+        const seg = e.L / e.gaps;
+        let off = ((pr.s - e.s) % seg + seg) % seg; if (off > seg / 2) off -= seg;
+        const q = e.point(pr.s - off);
+        best.push([2, q[0], q[1]]);
+      }
+    }
+  }
+  best.sort((a, b) => a[0] - b[0]);
+  return best.length ? best[0] : null;
+}
+
 function pick() {
   const nodes = [...archive.values()];
   if (rnd() < 0.15) return nodes[(rnd() * nodes.length) | 0];
@@ -110,11 +147,17 @@ while (!solution && (Date.now() - t0) / 1000 < TIME) {
   let cur = start, acts = [], last = DIRS[(rnd() * 9) | 0], slow = false;
   const chunks = 8 + ((rnd() * 30) | 0);
   for (let c = 0; c < chunks; c++) {
-    if (rnd() > 0.65) {
+    const tg = rnd() < 0.3 ? gapTarget() : null;
+    if (tg) {
+      // head for the gap: one axis at a time is how keys work
+      const dx = tg[1] - G.player.x, dy = tg[2] - G.player.y;
+      last = [Math.abs(dx) > 2 ? Math.sign(dx) : 0, Math.abs(dy) > 2 ? Math.sign(dy) : 0];
+      slow = Math.hypot(dx, dy) < 12;
+    } else if (rnd() > 0.65) {
       last = rnd() < 0.16 ? DIRS[0] : DIRS[1 + ((rnd() * 8) | 0)];
       slow = rnd() < (ppr !== null ? 0.3 : 0.1);
     }
-    const n = rnd() < 0.15 ? 1 + ((rnd() * 3) | 0) : 4 + ((rnd() * 26) | 0);
+    const n = HUMAN ? 10 + ((rnd() * 30) | 0) : rnd() < 0.15 ? 1 + ((rnd() * 3) | 0) : 4 + ((rnd() * 26) | 0);
     sim.input(last[0], last[1], slow);
     const ran = sim.step(n);
     acts.push([last[0], last[1], slow ? 1 : 0, ran]);
@@ -149,6 +192,22 @@ if (solution) {
   replayOk = !!check.G.simWin && !check.G.simDead;
   replayTime = check.G.time;
 }
+// ---------- how forgiving is the winning run?
+let robust = null;
+if (replayOk && ROBUST > 0) {
+  let wins = 0;
+  for (let k = 0; k < ROBUST; k++) {
+    const r = createSim({ seed: SEED });
+    r.start(ROOM, DEATHS, HEAT);
+    for (const [x, y, s, n] of solution) {
+      r.input(x, y, s);
+      r.step(Math.max(1, n + Math.round((rnd() - 0.5) * 6.99)));
+      if (r.G.simWin || r.G.simDead) break;
+    }
+    if (r.G.simWin && !r.G.simDead) wins++;
+  }
+  robust = +(wins / ROBUST).toFixed(2);
+}
 const topDeaths = [...deaths.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
   .map(([k, v]) => { const [c, r] = k.split(',').map(Number); return { x: c * 40 + 20, y: r * 40 + 20, n: v }; });
 const result = {
@@ -156,7 +215,7 @@ const result = {
   d: +G.ai.d.toFixed(2), ppr: ppr === null ? null : +ppr.toFixed(2),
   solved: replayOk, foundRun: !!solution, gameSeconds: +replayTime.toFixed(1),
   wallSeconds: +((Date.now() - t0) / 1000).toFixed(1), iterations: iters, archive: archive.size,
-  coinsTotal: lv.coins.length, maxCoins, bestRemainingTiles: +(-best).toFixed(1), topDeaths,
+  human: HUMAN, robust, coinsTotal: lv.coins.length, maxCoins, bestRemainingTiles: +(-best).toFixed(1), topDeaths,
 };
 console.log(JSON.stringify(result));
 if (OUT) fs.writeFileSync(OUT, JSON.stringify({ ...result, actions: replayOk ? solution : null }, null, 0));

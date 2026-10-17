@@ -14,7 +14,7 @@ const args = {};
 for (let i = 2; i < process.argv.length; i += 2) args[process.argv[i].replace(/^--/, '')] = process.argv[i + 1];
 const [r0, r1] = (args.rooms || '1-20').split('-').map(Number);
 const targets = (args.targets || '60,88,max').split(',');
-const TIME = +(args.time || 300), JOBS = +(args.jobs || 4), SEED = +(args.seed || 1);
+const TIME = +(args.time || 300), JOBS = +(args.jobs || 4), SEED = +(args.seed || 1), HUMAN = args.human === '1';
 const OUT = args.out || path.join(__dirname, '..', 'verify-results');
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -30,7 +30,7 @@ function launch() {
     const j = jobs[next++];
     running++;
     const file = path.join(OUT, `room${j.L}_${j.t}.json`);
-    const p = spawn(process.execPath, [path.join(__dirname, 'bot.js'), '--room', j.L, '--D', j.D, '--seed', SEED, '--time', TIME, '--out', file]);
+    const p = spawn(process.execPath, [path.join(__dirname, 'bot.js'), '--room', j.L, '--D', j.D, '--seed', SEED, '--time', TIME, '--out', file, '--human', HUMAN ? '1' : '0']);
     let buf = '';
     p.stdout.on('data', d => { buf += d; });
     p.stderr.on('data', d => process.stderr.write(d));
@@ -45,7 +45,8 @@ function launch() {
 function print(r) {
   console.log(`room ${String(r.room).padStart(2)} ${r.name.padEnd(10)} d=${String(r.d).padEnd(6)} ` +
     `${r.solved ? 'BEATEN ' : 'not yet'} in ${r.wallSeconds}s  coins ${r.maxCoins}/${r.coinsTotal}  ` +
-    `${r.solved ? 'run ' + r.gameSeconds + 's' : 'closest ' + r.bestRemainingTiles + ' tiles'}`);
+    `${r.solved ? 'run ' + r.gameSeconds + 's' : 'closest ' + r.bestRemainingTiles + ' tiles'}` +
+    (r.robust !== null && r.robust !== undefined ? `  slack ${Math.round(r.robust * 100)}%` : ''));
 }
 function finish() {
   results.sort((a, b) => a.room - b.room || String(a.target).localeCompare(String(b.target)));

@@ -33,17 +33,17 @@ Progress (room, deaths and what the enemies have learned) is saved in the browse
 | 7 | Pack | Hunters that work together (chase, cut off, flank) |
 | 8 | The Wall | A wall whose gap mirrors you |
 | 9 | Memory | Sentries that guard the routes you used before |
-| 10 | Infinix | A ring around the exit. Far away its gap runs from you; up close it turns steadily so you can get in |
+| 10 | Infinix | A ring around the exit. Far away its gap runs from you; up close it turns slowly toward you, and crawls while you slip through |
 | 11 | Graph | Enemies trace equations (Lissajous, roses, sine), drawn on the floor like a graphing calculator |
-| 12 | Echo | Your own path, replayed a few seconds behind you |
+| 12 | Echo | Two echoes of your own path, replayed a few seconds behind you |
 | 13 | Looped | The left and right edges connect; lanes of enemies stream around forever |
 | 14 | Undertow | Conveyor floors push you while a wall sweeps and hunters chase |
 | 15 | Shockwave | Expanding rings with one gap, placed at the edge of where you can reach in time |
 | 16 | Serpent | Hunters with bodies that get longer the more you die |
-| 17 | Recursion | Three nested rings around the exit, turning in opposite directions |
-| 18 | Hive | Seven hunters and sentries working together |
-| 19 | Collapse | Two walls at once, a shockwave and your echo |
-| 20 | Infinix ∞ | Looping edges, nested rings, a serpent, a hunter and your echo |
+| 17 | Recursion | Three nested rings around the exit, turning in opposite directions, with your echo behind you |
+| 18 | Hive | Hunters, snakes and sentries working together, and your echo |
+| 19 | Collapse | A wall in each half, a shockwave from the middle, hunters and your echo |
+| 20 | Infinix ∞ | Looping edges, three nested rings with coins between them, a serpent, a hunter and your echo |
 
 After room 20 the rooms loop forever (mirrored each loop). The level number keeps counting, so the game keeps getting harder.
 
@@ -59,10 +59,12 @@ PpR = max(20 · 0.5^(d − 90), 1)            only once d ≥ 90
 - `PpR` is the gap the AI enemies must leave you: between two hunters, around safe zones and coins, and the opening in walls, rings and shockwaves. Before `d = 90` the gap is 20 px. After that it halves as `d` rises, down to 1 px. Once it is online, walls and rings hold still while you thread a gap, so 1 px gaps stay possible.
 - Enemies learn from every death through a heat map of where you go and where you die. Hunters lean toward your habits, sentries guard your favourite routes, walls and shockwaves open where you go least. Learning stops when `PpR` reaches 1 px (`d ≈ 94.32`).
 - AI enemies are always slower than you, and every gap is at least your size + 1 px, so a path always exists.
+- Safe zones are always safe: echoes and shockwaves never reach into them.
+- Rings slow to a crawl while you stand at their gap, and hold still once `PpR` is online.
 
 ## Music
 
-The soundtrack is the song embedded at the bottom of `index.html`. It loops forever on a bar line (124 beats at 136 BPM) with a 50 ms crossfade, so there is no gap or click at the loop point. To use a different song:
+The soundtrack is the song embedded at the bottom of `index.html`. It loops forever on a bar line (112 beats = 28 bars at 136 BPM, where the song's chord cycle comes back round) with a 50 ms crossfade, so there is no gap or click at the loop point. To use a different song:
 
 ```
 node tools/embed-song.js path/to/song.mp3 [secondsPerBeat beatsPerLoop]

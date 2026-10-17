@@ -54,7 +54,7 @@ const STATE_KEYS = ['level', 'player', 'spawn', 'cpGroup', 'time', 'hunt', 'ai',
   'heat', 'heatTmp', 'heatMax', 'heatVer', 'simDead', 'simWin', 'room', 'loop', 'mirrorX', 'mirrorY'];
 
 function createSim(opts = {}) {
-  const code = extractScript(fs.readFileSync(opts.index || INDEX, 'utf8'));
+  const code = extractScript(fs.readFileSync(opts.index || process.env.INFINIX_INDEX || INDEX, 'utf8'));
   const rng = { s: (opts.seed >>> 0) || 1 };
   const SMath = Object.create(Math);
   SMath.random = mulberry(rng);
