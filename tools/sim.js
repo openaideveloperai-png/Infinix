@@ -51,7 +51,8 @@ function clone(o, memo) {
 }
 
 const STATE_KEYS = ['level', 'player', 'spawn', 'cpGroup', 'time', 'hunt', 'ai', 'circles',
-  'heat', 'heatTmp', 'heatMax', 'heatVer', 'simDead', 'simWin', 'room', 'loop', 'mirrorX', 'mirrorY'];
+  'heat', 'heatTmp', 'heatMax', 'heatVer', 'simDead', 'simWin', 'room', 'loop', 'mirrorX', 'mirrorY',
+  'sk', 'boss', 'mem', 'kind', 'stage', 'completing'];
 
 function createSim(opts = {}) {
   const code = extractScript(fs.readFileSync(opts.index || process.env.INFINIX_INDEX || INDEX, 'utf8'));
@@ -94,9 +95,9 @@ function createSim(opts = {}) {
     // L = level number (1..), D = deaths (sets the difficulty), heat = learned map or null
     start(L, D, heat) {
       I.save.D = D; I.save.heat = {};
-      const room = (L - 1) % I.LEVELS.length;
+      const room = (L - 1) % I.LEVELS.length, loop = Math.floor((L - 1) / I.LEVELS.length) + 1;
       if (heat) I.save.heat[room] = heat;
-      I.startRoom(L);
+      I.startRoom(I.roomL ? I.roomL(room, loop) : L);     // L here is a room number; the game counts stages
       G.state = 'play'; G.sim = true; G.msgs.length = 0;
       G.simDead = false; G.simWin = false; G.botInput = { x: 0, y: 0, slow: false };
     },
