@@ -4706,7 +4706,6 @@ function secretUpdate(dt) {
     if (tr.t >= tr.out + tr.hold + tr.in) { SX.trans = null; SX.freeze = false; secretArrive(SX.stage); }
     return;
   }
-<<<<<<< HEAD
   if (Talk.q) { talkUpdate(dt); return; }
   if (SX.kill) { killUpdate(dt); return; }
   const k = SX.stage, p = G.player;
@@ -4714,19 +4713,6 @@ function secretUpdate(dt) {
     // the light: it flickers, and further down it fails for a moment now and then
     if (SX.dip <= 0 && Math.random() < dt * (0.12 + 0.03 * Math.min(k, SECRET_LAST))) SX.dip = 0.06 + Math.random() * 0.14;
     if (k >= 6 && k < SECRET_LAST && SX.flash <= 0 && Math.random() < dt * 0.07) SX.flash = 0.05 + Math.random() * 0.05;
-=======
-  if (SX.dialog) { SX.dialog.n = Math.min(SX.dialog.lines[SX.dialog.i].length, SX.dialog.n + dt * 34); return; }
-  // the light: it flickers, and further down it fails for a moment now and then
-  const k = SX.stage;
-  if (SX.dip <= 0 && Math.random() < dt * (0.12 + 0.03 * k)) SX.dip = 0.06 + Math.random() * 0.14;
-  if (k >= 6 && k < SECRET_LAST && SX.flash <= 0 && Math.random() < dt * 0.07) SX.flash = 0.05 + Math.random() * 0.05;
-  const p = G.player;
-  if (SX.end > 0) {
-    // the last room: it is standing at the beginning
-    SX.end += dt;
-    if (SX.end > 1.6 && !SX.said) { SX.said = true; sayLines(['Who are you? are you relly from this game?'], () => { SX.black = 0.0001; }); }
-    return;
->>>>>>> origin/claude/admiring-bell-a7aq4l
   }
   if (k === 20) { bottomUpdate(dt); return; }
   if (k === 21) { outsideUpdate(dt); return; }
@@ -4744,7 +4730,7 @@ function secretUpdate(dt) {
   } else if (!SX.freeze && Math.hypot(p.x - 160, p.y - 280) < 200) {
     // the last room: it is standing at the beginning
     SX.freeze = true;
-    talk([['cube', '...Hello?'], ['cube', "Who's there?"], ['figure', 'YOU WENT TOO DEEP.'], ['figure', 'EVERY LOOP ENDS WITH ME.']],
+    talk([['cube', '...Hello?'], ['cube', 'Who are you? Are you really from this game?'], ['figure', 'YOU WENT TOO DEEP.'], ['figure', 'EVERY LOOP ENDS WITH ME.']],
       () => { SX.kill = { t: 0, fx: 160, fy: 280, bits: null, pool: 0 }; });
   }
 }
